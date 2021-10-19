@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS events_pictures_tbl (
     data_creation DATETIME
 );
 
-CREATE TABLE IF NOT EXISTS events_organizer (
+CREATE TABLE IF NOT EXISTS events_organizer_tbl (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     adresses_id INT NOT NULL,
     FOREIGN KEY (adresses_id)
