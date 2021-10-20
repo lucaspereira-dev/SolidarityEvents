@@ -7,44 +7,19 @@ CREATE TABLE IF NOT EXISTS users_tbl(
 	id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     fist_name VARCHAR(100),
     last_name VARCHAR(100),
-    phone VARCHAR(100),
     email VARCHAR(100),
+    password VARCHAR(100),
     data_update DATETIME,
-    data_creation DATETIME
-);
-
-CREATE TABLE IF NOT EXISTS adresses_tbl (
-    id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    street VARCHAR(100) NOT NULL,
-    number INT NOT NULL,
-    avenue VARCHAR(200) NOT NULL,
-    city VARCHAR(100) NOT NULL,
-    state VARCHAR(100) NOT NULL,
-    zip_code VARCHAR(50) NOT NULL,
-    country VARCHAR(50) NOT NULL,
-    latitude DOUBLE NOT NULL,
-    longitude DOUBLE NOT NULL,
-    data_update DATETIME,
-    data_creation DATETIME
-);
-
-CREATE TABLE IF NOT EXISTS adresses_users_tbl (
-    id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    users_id INT NOT NULL,
-    FOREIGN KEY (users_id)
-        REFERENCES users_tbl (id),
-    adresses_id INT NOT NULL,
-    FOREIGN KEY (adresses_id)
-        REFERENCES adresses_tbl (id),
     data_creation DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS events_tbl (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    group_name VARCHAR(200),
     event_name VARCHAR(300),
     drescription TEXT,
     description_donations TEXT,
+    latitude DOUBLE NOT NULL,
+    longitude DOUBLE NOT NULL,
     data_update DATETIME,
     data_creation DATETIME
 );
@@ -72,15 +47,14 @@ CREATE TABLE IF NOT EXISTS events_pictures_tbl (
 
 CREATE TABLE IF NOT EXISTS events_organizer_tbl (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    adresses_id INT NOT NULL,
-    FOREIGN KEY (adresses_id)
-        REFERENCES adresses_tbl (id),
+    status TINYINT(1) DEFAULT 1,
     users_id INT NOT NULL,
     FOREIGN KEY (users_id)
         REFERENCES users_tbl (id),
     events_id INT NOT NULL,
     FOREIGN KEY (events_id)
         REFERENCES events_tbl (id),
+    phone VARCHAR(100),
     date_init_event DATETIME,
     date_end_event DATETIME,
     data_update DATETIME,

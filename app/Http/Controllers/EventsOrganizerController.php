@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EventsOrganizer;
 use Illuminate\Http\Request;
+use Exception;
 
 class EventsOrganizerController extends Controller
 {
@@ -12,9 +13,10 @@ class EventsOrganizerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, EventsOrganizer $eventsOrganizer)
     {
-        //
+
+        return response()->json($eventsOrganizer::all());
     }
 
     /**
