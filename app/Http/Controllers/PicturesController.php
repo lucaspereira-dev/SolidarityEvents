@@ -12,9 +12,9 @@ class PicturesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, Pictures $pictures)
     {
-        //
+        return response()->json($pictures::all(), 200);
     }
 
     /**

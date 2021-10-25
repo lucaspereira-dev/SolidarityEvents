@@ -12,9 +12,9 @@ class EventsPicturesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, EventsPictures $eventsPictures)
     {
-        //
+        return response()->json($eventsPictures::all(), 200);
     }
 
     /**

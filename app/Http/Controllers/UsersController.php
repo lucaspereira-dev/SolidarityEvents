@@ -12,9 +12,9 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, Users $users)
     {
-        //
+        return response()->json($users::all(), 200);
     }
 
     /**

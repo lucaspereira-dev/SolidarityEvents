@@ -16,7 +16,7 @@ class EventsOrganizerController extends Controller
     public function index(Request $request, EventsOrganizer $eventsOrganizer)
     {
 
-        return response()->json($eventsOrganizer::all());
+        return response()->json($eventsOrganizer::all(), 200);
     }
 
     /**
