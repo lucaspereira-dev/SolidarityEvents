@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventsOrganizerController;
 use App\Http\Controllers\EventsPicturesController;
 use App\Http\Controllers\PicturesController;
@@ -64,3 +65,5 @@ Route::group(['prefix' =>'users'], function (){
     Route::delete('/{user_id}',  [UsersController::class, 'destroy']);
 });
 
+// Route Auth
+Route::post('auth/login', [AuthController::class, 'login'])->name('auth.login');
