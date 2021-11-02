@@ -16,7 +16,21 @@ class Events extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
+
+     /**
+     * The name of the "created at" column.
+     *
+     * @var string
+     */
+    const CREATED_AT = 'date_creation';
+
+    /**
+     * The name of the "updated at" column.
+     *
+     * @var string
+     */
+    const UPDATED_AT = 'date_update';
 
     /**
      * The attributes that are mass assignable.
@@ -24,9 +38,9 @@ class Events extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'event_name',
+        'latitude',
+        'longitude',
     ];
 
     /**
@@ -35,7 +49,6 @@ class Events extends Model
      * @var array
      */
     protected $hidden = [
-        'password',
         // 'remember_token',
     ];
 
@@ -56,13 +69,10 @@ class Events extends Model
     public function rules()
     {
         return [
-            'name' => 'required',
-            'email' => 'required',
+            'event_name' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
         ];
-    }
-
-    public function rulesUpdate()
-    {
     }
 
 
@@ -74,8 +84,9 @@ class Events extends Model
     public function messages()
     {
         return [
-            'name.required'    => 'Nome é obrigatório',
-            'email.required'    => 'Email é obrigatório',
+            'event_name.required'    => 'Nome do Evento é obrigatório',
+            'latitude.required'    => 'Latitude não informada',
+            'longitude.required'    => 'Longitude não informado',
         ];
     }
 }

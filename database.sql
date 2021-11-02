@@ -9,19 +9,19 @@ CREATE TABLE IF NOT EXISTS users_tbl(
     last_name VARCHAR(100),
     email VARCHAR(100),
     password VARCHAR(100),
-    data_update DATETIME,
-    data_creation DATETIME
+    date_update TIMESTAMP,
+    date_creation TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS events_tbl (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    event_name VARCHAR(300),
+    event_name VARCHAR(300) NOT NULL,
     drescription TEXT,
     description_donations TEXT,
     latitude DOUBLE NOT NULL,
     longitude DOUBLE NOT NULL,
-    data_update DATETIME,
-    data_creation DATETIME
+    date_update TIMESTAMP,
+    date_creation TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS pictures_tbl (
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS pictures_tbl (
     dir TEXT,
     title VARCHAR(100),
     description TEXT,
-    data_creation DATETIME
+    date_creation TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS events_pictures_tbl (
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS events_pictures_tbl (
     pictures_id INT NOT NULL,
     FOREIGN KEY (pictures_id)
         REFERENCES pictures_tbl (id),
-    data_creation DATETIME
+    date_creation TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS events_organizer_tbl (
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS events_organizer_tbl (
     phone VARCHAR(100),
     date_init_event DATETIME,
     date_end_event DATETIME,
-    data_update DATETIME,
-    data_creation DATETIME
+    date_update TIMESTAMP,
+    date_creation TIMESTAMP
 );
 

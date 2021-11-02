@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Validator;
 use App\Models\EventsPictures;
 use Illuminate\Http\Request;
 
@@ -18,24 +19,34 @@ class EventsPicturesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, EventsPictures $eventsPictures)
     {
-        //
+        
+        try {
+
+            $validator = Validator::make($request->all(), $eventsPictures->rules(), $eventsPictures->messages());
+
+            if ($validator->stopOnFirstFailure()->fails()) {
+                return response()->json(["error" => $validator->messages()], 403);
+            }
+
+            $eventsPictures->events_id = $request->events_id ?? '';
+            $eventsPictures->pictures_id = $request->pictures_id ?? '';
+            
+
+            if (!$eventsPictures->save()) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $eventsPictures], 201);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -46,18 +57,7 @@ class EventsPicturesController extends Controller
      */
     public function show(EventsPictures $eventsPictures)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\EventsPictures  $eventsPictures
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(EventsPictures $eventsPictures)
-    {
-        //
+        return response()->json(["response" =>  $eventsPictures], 200);  
     }
 
     /**
@@ -69,7 +69,17 @@ class EventsPicturesController extends Controller
      */
     public function update(Request $request, EventsPictures $eventsPictures)
     {
-        //
+        try {
+
+            $data_request = $request->all();
+            if (!$eventsPictures->update($data_request)) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $eventsPictures], 200);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -80,6 +90,7 @@ class EventsPicturesController extends Controller
      */
     public function destroy(EventsPictures $eventsPictures)
     {
-        //
+        $id = $eventsPictures->id;
+        return response()->json(["response" => (bool)$eventsPictures->destroy($id)], 200);
     }
 }

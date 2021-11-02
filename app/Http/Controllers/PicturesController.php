@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pictures;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PicturesController extends Controller
 {
@@ -12,19 +13,9 @@ class PicturesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, Pictures $pictures)
+    public function index(Request $request)
     {
-        return response()->json($pictures::all(), 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return response()->json(Pictures::all(), 200);
     }
 
     /**
@@ -33,9 +24,31 @@ class PicturesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Pictures $pictures)
     {
-        //
+        
+        try {
+
+            $validator = Validator::make($request->all(), $pictures->rules(), $pictures->messages());
+
+            if ($validator->stopOnFirstFailure()->fails()) {
+                return response()->json(["error" => $validator->messages()], 403);
+            }
+
+            $pictures->hash         = $request->hash ?? '';
+            $pictures->mimo         = $request->mimo ?? '';
+            $pictures->dir          = $request->dir  ?? '';
+            $pictures->title        = $request->title  ?? '';
+            $pictures->description  = $request->description  ?? '';
+
+            if (!$pictures->save()) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $pictures], 201);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -46,19 +59,9 @@ class PicturesController extends Controller
      */
     public function show(Pictures $pictures)
     {
-        //
+        return response()->json(["response" => $pictures], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Pictures  $pictures
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Pictures $pictures)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -69,7 +72,17 @@ class PicturesController extends Controller
      */
     public function update(Request $request, Pictures $pictures)
     {
-        //
+        try {
+
+            $data_request = $request->all();
+            if (!$pictures->update($data_request)) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $pictures], 200);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -80,6 +93,7 @@ class PicturesController extends Controller
      */
     public function destroy(Pictures $pictures)
     {
-        //
+        $id = $pictures->id;
+        return response()->json(["response" => (bool)$pictures->destroy($id)], 200);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Users;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
@@ -18,24 +19,33 @@ class UsersController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Users $users)
     {
-        //
+        try {
+            $validator = Validator::make($request->all(), $users->rules(), $users->messages());
+
+            if ($validator->stopOnFirstFailure()->fails()) {
+                return response()->json(["error" => $validator->messages()], 403);
+            }
+
+            $users->fist_name       = $request->fist_name ?? '';
+            $users->last_name       = $request->last_name ?? '';
+            $users->email           = $request->email  ?? '';
+            $users->password        = sha1($request->password  ?? '1234');
+
+            if (!$users->save()) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $users], 201);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -46,19 +56,9 @@ class UsersController extends Controller
      */
     public function show(Users $users)
     {
-        //
+        return response()->json(["response" =>  $users], 200);  
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Users  $users
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Users $users)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -69,7 +69,17 @@ class UsersController extends Controller
      */
     public function update(Request $request, Users $users)
     {
-        //
+        try {
+
+            $data_request = $request->all();
+            if (!$users->update($data_request)) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $users], 200);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -80,6 +90,7 @@ class UsersController extends Controller
      */
     public function destroy(Users $users)
     {
-        //
+        $id = $users->id;
+        return response()->json(["response" => (bool)$users->destroy($id)], 200);
     }
 }

@@ -3,29 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Events;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class EventsController extends Controller
 {
-    /**
-     * @SWG\Get(
-     *   path="/api/testing/{mytest}",
-     *   summary="Get Testing",
-     *   operationId="testing",
-     *   @SWG\Response(response=200, description="successful operation"),
-     *   @SWG\Response(response=406, description="not acceptable"),
-     *   @SWG\Response(response=500, description="internal server error"),
-	 *		@SWG\Parameter(
-     *          name="mytest",
-     *          in="path",
-     *          required=true, 
-     *          type="string" 
-     *      ),
-     * )
-     *
-     */
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -44,10 +28,27 @@ class EventsController extends Controller
      */
     public function store(Request $request, Events $events)
     {
-        $validator = Validator::make($request->all(), $events->rules(), $events->messages());
+        try {
 
-        if ($validator->stopOnFirstFailure()->fails()) {
-            return response()->json(["message" => $validator->messages()], 403);
+            $validator = Validator::make($request->all(), $events->rules(), $events->messages());
+
+            if ($validator->stopOnFirstFailure()->fails()) {
+                return response()->json(["error" => $validator->messages()], 403);
+            }
+
+            $events->event_name = $request->event_name ?? '';
+            $events->drescription = $request->drescription ?? '';
+            $events->description_donations = $request->description_donations  ?? '';
+            $events->latitude = $request->latitude  ?? '';
+            $events->longitude = $request->longitude  ?? '';
+
+            if (!$events->save()) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $events], 201);
+        } catch (Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
         }
     }
 
@@ -59,18 +60,7 @@ class EventsController extends Controller
      */
     public function show(Events $events)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Events  $events
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Events $events)
-    {
-        //
+        return response()->json(["response" =>  $events], 200);
     }
 
     /**
@@ -82,7 +72,17 @@ class EventsController extends Controller
      */
     public function update(Request $request, Events $events)
     {
-        //
+        try {
+
+            $data_request = $request->all();
+            if (!$events->update($data_request)) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $events], 200);
+        } catch (Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -93,6 +93,7 @@ class EventsController extends Controller
      */
     public function destroy(Events $events)
     {
-        //
+        $id = $events->id;
+        return response()->json(["response" => (bool)$events->destroy($id)], 200);
     }
 }
