@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\EventsOrganizer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Exception;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 
 class EventsOrganizerController extends Controller
 {
@@ -20,24 +22,36 @@ class EventsOrganizerController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, EventsOrganizer $eventsOrganizer)
     {
-        //
+        try {
+
+            $validator = Validator::make($request->all(), $eventsOrganizer->rules(), $eventsOrganizer->messages());
+
+            if ($validator->stopOnFirstFailure()->fails()) {
+                return response()->json(["error" => $validator->messages()], 403);
+            }
+
+            $eventsOrganizer->status            = $request->status ?? '';
+            $eventsOrganizer->users_id          = $request->users_id ?? '';
+            $eventsOrganizer->events_id         = $request->events_id  ?? '';
+            $eventsOrganizer->phone             = $request->phone  ?? '';
+            $eventsOrganizer->date_init_event   = $request->date_init_event  ?? '';
+            $eventsOrganizer->date_end_event    = $request->date_end_event  ?? '';
+
+            if (!$eventsOrganizer->save()) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $eventsOrganizer], 201);
+        } catch (Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -48,19 +62,9 @@ class EventsOrganizerController extends Controller
      */
     public function show(EventsOrganizer $eventsOrganizer)
     {
-        //
+        return response()->json(["response" =>  $eventsOrganizer], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\EventsOrganizer  $eventsOrganizer
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(EventsOrganizer $eventsOrganizer)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -71,7 +75,17 @@ class EventsOrganizerController extends Controller
      */
     public function update(Request $request, EventsOrganizer $eventsOrganizer)
     {
-        //
+        try {
+
+            $data_request = $request->all();
+            if (!$eventsOrganizer->update($data_request)) {
+                return response()->json(["response" => false], 200);
+            }
+
+            return response()->json(["response" => $eventsOrganizer], 200);
+        } catch (Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -80,8 +94,9 @@ class EventsOrganizerController extends Controller
      * @param  \App\Models\EventsOrganizer  $eventsOrganizer
      * @return \Illuminate\Http\Response
      */
-    public function destroy(EventsOrganizer $eventsOrganizer)
+    public function destroy(Request $request, EventsOrganizer $eventsOrganizer)
     {
-        //
+        $id = $eventsOrganizer->id;
+        return response()->json(["response" => (bool)$eventsOrganizer->destroy($id)], 200);
     }
 }

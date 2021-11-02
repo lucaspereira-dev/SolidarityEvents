@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventsOrganizerController;
 use App\Http\Controllers\EventsPicturesController;
 use App\Http\Controllers\PicturesController;
@@ -27,40 +28,46 @@ Route::get('/', function(){
 Route::group(['prefix' =>'events'], function (){
     Route::get('/',  [EventsController::class, 'index']);
     Route::post('/',  [EventsController::class, 'store']);
-    Route::get('/{event_id}',  [EventsController::class, 'show']);
-    Route::put('/{event_id}',  [EventsController::class, 'update']);
-    Route::delete('/{event_id}',  [EventsController::class, 'destroy']);
+    Route::get('/{events}',  [EventsController::class, 'show']);
+    Route::put('/{events}',  [EventsController::class, 'update']);
+    Route::delete('/{events}',  [EventsController::class, 'destroy']);
 });
 
 Route::group(['prefix' =>'eventsorganizer'], function (){
     Route::get('/',  [EventsOrganizerController::class, 'index']);
     Route::post('/',  [EventsOrganizerController::class, 'store']);
-    Route::get('/{organizer_id}',  [EventsOrganizerController::class, 'show']);
-    Route::put('/{organizer_id}',  [EventsOrganizerController::class, 'update']);
-    Route::delete('/{organizer_id}',  [EventsOrganizerController::class, 'destroy']);
+    Route::get('/{eventsorganizer}',  [EventsOrganizerController::class, 'show']);
+    Route::put('/{eventsorganizer}',  [EventsOrganizerController::class, 'update']);
+    Route::delete('/{eventsorganizer}',  [EventsOrganizerController::class, 'destroy']);
 });
 
 Route::group(['prefix' =>'eventspictures'], function (){
     Route::get('/',  [EventsPicturesController::class, 'index']);
     Route::post('/',  [EventsPicturesController::class, 'store']);
-    Route::get('/{event_picture_id}',  [EventsPicturesController::class, 'show']);
-    Route::put('/{event_picture_id}',  [EventsPicturesController::class, 'update']);
-    Route::delete('/{event_picture_id}',  [EventsPicturesController::class, 'destroy']);
+    Route::get('/{eventspictures}',  [EventsPicturesController::class, 'show']);
+    Route::put('/{eventspictures}',  [EventsPicturesController::class, 'update']);
+    Route::delete('/{eventspictures}',  [EventsPicturesController::class, 'destroy']);
 });
 
 Route::group(['prefix' =>'pictures'], function (){
     Route::get('/',  [PicturesController::class, 'index']);
     Route::post('/',  [PicturesController::class, 'store']);
-    Route::get('/{picture_id}',  [PicturesController::class, 'show']);
-    Route::put('/{picture_id}',  [PicturesController::class, 'update']);
-    Route::delete('/{picture_id}',  [PicturesController::class, 'destroy']);
+    Route::get('/{pictures}',  [PicturesController::class, 'show']);
+    Route::put('/{pictures}',  [PicturesController::class, 'update']);
+    Route::delete('/{pictures}',  [PicturesController::class, 'destroy']);
 });
 
 Route::group(['prefix' =>'users'], function (){
     Route::get('/',  [UsersController::class, 'index']);
     Route::post('/',  [UsersController::class, 'store']);
-    Route::get('/{user_id}',  [UsersController::class, 'show']);
-    Route::put('/{user_id}',  [UsersController::class, 'update']);
-    Route::delete('/{user_id}',  [UsersController::class, 'destroy']);
+    Route::get('/{users}',  [UsersController::class, 'show']);
+    Route::put('/{users}',  [UsersController::class, 'update']);
+    Route::delete('/{users}',  [UsersController::class, 'destroy']);
 });
+
+Route::group(['prefix' =>'login'], function (){
+    // Route Auth
+    Route::post('/auth', [AuthController::class, 'login'])->name('auth.login');
+}
+
 
