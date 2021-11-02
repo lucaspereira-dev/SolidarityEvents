@@ -68,6 +68,6 @@ Route::group(['prefix' =>'users'], function (){
 Route::group(['prefix' =>'login'], function (){
     // Route Auth
     Route::post('/auth', [AuthController::class, 'login'])->name('auth.login');
-}
+});
 
 
