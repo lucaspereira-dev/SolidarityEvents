@@ -15,7 +15,7 @@ class PicturesController extends Controller
      */
     public function index(Request $request)
     {
-        return response()->json(Pictures::all(), 200);
+        return response()->json(Pictures::all()], 200);
     }
 
     /**

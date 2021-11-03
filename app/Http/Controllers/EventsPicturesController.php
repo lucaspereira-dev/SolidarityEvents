@@ -15,7 +15,7 @@ class EventsPicturesController extends Controller
      */
     public function index(Request $request, EventsPictures $eventsPictures)
     {
-        return response()->json($eventsPictures::all(), 200);
+        return response()->json(["response" =>eventsPictures::all()], 200);
     }
 
     /**
