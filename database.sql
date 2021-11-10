@@ -5,7 +5,7 @@ USE solidarity_events_db;
 
 CREATE TABLE IF NOT EXISTS users_tbl(
 	id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    fist_name VARCHAR(100),
+    first_name VARCHAR(100),
     last_name VARCHAR(100),
     email VARCHAR(100),
     password VARCHAR(100),
@@ -26,9 +26,8 @@ CREATE TABLE IF NOT EXISTS events_tbl (
 
 CREATE TABLE IF NOT EXISTS pictures_tbl (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    hash TEXT,
     mimo VARCHAR(50),
-    dir TEXT,
+    base64 TEXT,
     title VARCHAR(100),
     description TEXT,
     date_creation TIMESTAMP

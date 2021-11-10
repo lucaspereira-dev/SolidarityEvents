@@ -32,7 +32,7 @@ class EventsPicturesController extends Controller
             $validator = Validator::make($request->all(), $eventsPictures->rules(), $eventsPictures->messages());
 
             if ($validator->stopOnFirstFailure()->fails()) {
-                return response()->json(["error" => $validator->messages()], 403);
+                return response()->json(["error" => $validator->messages()], 400);
             }
 
             $eventsPictures->events_id = $request->events_id ?? '';

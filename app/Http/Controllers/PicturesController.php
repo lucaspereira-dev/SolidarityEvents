@@ -15,7 +15,7 @@ class PicturesController extends Controller
      */
     public function index(Request $request)
     {
-        return response()->json(Pictures::all()], 200);
+        return response()->json([Pictures::all()], 200);
     }
 
     /**
@@ -32,7 +32,7 @@ class PicturesController extends Controller
             $validator = Validator::make($request->all(), $pictures->rules(), $pictures->messages());
 
             if ($validator->stopOnFirstFailure()->fails()) {
-                return response()->json(["error" => $validator->messages()], 403);
+                return response()->json(["error" => $validator->messages()], 400);
             }
 
             $pictures->hash         = $request->hash ?? '';

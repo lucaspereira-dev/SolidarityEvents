@@ -30,13 +30,13 @@ class UsersController extends Controller
             $validator = Validator::make($request->all(), $users->rules(), $users->messages());
 
             if ($validator->stopOnFirstFailure()->fails()) {
-                return response()->json(["error" => $validator->messages()], 403);
+                return response()->json(["error" => $validator->messages()], 400);
             }
 
-            $users->fist_name       = $request->fist_name ?? '';
+            $users->first_name       = $request->first_name ?? '';
             $users->last_name       = $request->last_name ?? '';
             $users->email           = $request->email  ?? '';
-            $users->password        = sha1($request->password  ?? '1234');
+            $users->password        = $request->password;
 
             if (!$users->save()) {
                 return response()->json(["response" => false], 200);

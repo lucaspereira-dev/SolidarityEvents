@@ -33,7 +33,7 @@ class EventsController extends Controller
             $validator = Validator::make($request->all(), $events->rules(), $events->messages());
 
             if ($validator->stopOnFirstFailure()->fails()) {
-                return response()->json(["error" => $validator->messages()], 403);
+                return response()->json(["error" => $validator->messages()], 400);
             }
 
             $events->event_name = $request->event_name ?? '';

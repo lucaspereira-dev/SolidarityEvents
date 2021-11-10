@@ -34,7 +34,7 @@ class EventsOrganizerController extends Controller
             $validator = Validator::make($request->all(), $eventsOrganizer->rules(), $eventsOrganizer->messages());
 
             if ($validator->stopOnFirstFailure()->fails()) {
-                return response()->json(["error" => $validator->messages()], 403);
+                return response()->json(["error" => $validator->messages()], 400);
             }
 
             $eventsOrganizer->status            = $request->status ?? '';
