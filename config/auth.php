@@ -42,7 +42,7 @@ return [
         ],
         'api' => [
             'driver' => 'jwt',
-            'provider' => 'solidarity_events_db',
+            'provider' => 'users_tbl',
         ],
     ],
 
@@ -69,9 +69,9 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        'solidarity_events_db' => [
+        'users_tbl' => [
             'driver' => 'eloquent',
-            'model' => App\Models\SolidarityEvents::class,
+            'model' => App\Models\Users::class,
         ],
 
         // 'users' => [

@@ -66,6 +66,6 @@ Route::group(['prefix' => 'users'], function () {
     Route::delete('/{users}',  [UsersController::class, 'destroy']);
 });
 
-// Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
-//     Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
-// });
+Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
+    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+});
