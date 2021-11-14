@@ -32,20 +32,31 @@ class GeneralController extends Controller
         }
     }
 
+    public function show(Request $request, EventsOrganizer $event)
+    {
+        try {
+
+            $row = $this->getAllFields($event);
+
+            return response()->json(["response" => $row], 200);
+        } catch (Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
+    }
+
     private function getAllFields(EventsOrganizer $event): array
     {
         $row = array();
 
         $user_event = Users::where(['id' => $event['users_id']])->first();
 
-        $row['user']['id'] = $user_event['id'];
         $row['user']['first_name'] = $user_event['first_name'];
         $row['user']['last_name'] = $user_event['last_name'];
         $row['user']['email'] = $user_event['email'];
 
         $data_event = Events::where(['id' => $event['events_id']])->first();
 
-        $row['event']['id'] = $data_event['id'];
+        $row['event']['id'] = $event['id'];
         $row['event']['event_name'] = $data_event['event_name'];
         $row['event']['drescription'] = $data_event['drescription'];
         $row['event']['description_donations'] = $data_event['description_donations'];
@@ -74,17 +85,19 @@ class GeneralController extends Controller
         return $row;
     }
 
-    public function store(Request $request, Users $users)
+    public function store(Request $request)
     {
 
         try {
+
+            $users = UsersController::userActive();
 
             $events = new Events();
             $events->event_name = $request->event_name ?? '';
             $events->drescription = $request->drescription ?? '';
             $events->description_donations = $request->description_donations  ?? '';
-            $events->latitude = $request->latitude  ?? '';
-            $events->longitude = $request->longitude  ?? '';
+            $events->latitude = $request->latitude  ?? 0;
+            $events->longitude = $request->longitude  ?? 0;
             $events->save();
 
             if (!isset($events->id)) {
@@ -97,9 +110,10 @@ class GeneralController extends Controller
                     $obj_pictures = new Pictures();
                     $obj_pictures->save($picture);
 
-                    $eventsPictures = new EventsPictures();
-                    $eventsPictures->events_id = $events->id;
-                    $eventsPictures->pictures_id = $obj_pictures->id;
+                    $eventsPictures                 = new EventsPictures();
+                    $eventsPictures->events_id      = $events->id;
+                    $eventsPictures->users_id       = $users->id;
+                    $eventsPictures->pictures_id    = $obj_pictures->id;
                     $eventsPictures->save();
                 }
             }
@@ -118,17 +132,23 @@ class GeneralController extends Controller
         }
     }
 
-    public function update(Request $request, Users $users, EventsOrganizer $events)
+    public function update(Request $request, EventsOrganizer $event)
     {
 
         try {
 
-            $events->phone             = $request->phone            ?? $events->phone;
-            $events->date_init_event   = $request->date_init_event  ?? $events->date_init_event;
-            $events->date_end_event    = $request->date_end_event   ?? $events->date_end_event;
-            $events->update();
+            $users = UsersController::userActive();
 
-            $data_event = Events::where(['id' => $events->events_id])->first();
+            if($event->users_id != $users->id){
+                throw new Exception("Você não tem permissão para alterar esse evento.");
+            }
+
+            $event->phone             = $request->phone            ?? $event->phone;
+            $event->date_init_event   = $request->date_init_event  ?? $event->date_init_event;
+            $event->date_end_event    = $request->date_end_event   ?? $event->date_end_event;
+            $event->update();
+
+            $data_event = Events::where(['id' => $event->events_id])->first();
             $data_event->event_name             = $request->event_name              ?? $data_event->event_name;
             $data_event->drescription           = $request->drescription            ?? $data_event->drescription;
             $data_event->description_donations  = $request->description_donations   ?? $data_event->description_donations;
@@ -142,13 +162,14 @@ class GeneralController extends Controller
                     $obj_pictures = new Pictures();
                     $obj_pictures->save($picture);
 
-                    $eventsPictures              = new EventsPictures();
-                    $eventsPictures->events_id   = $events->events_id;
-                    $eventsPictures->pictures_id = $obj_pictures->id;
+                    $eventsPictures                 = new EventsPictures();
+                    $eventsPictures->events_id      = $event->events_id;
+                    $eventsPictures->users_id       = $users->id;
+                    $eventsPictures->pictures_id    = $obj_pictures->id;
                     $eventsPictures->save();
                 }
             }
-            $row = $this->getAllFields($events);
+            $row = $this->getAllFields($event);
             return response()->json(["response" => $row], 200);
         } catch (Exception $e) {
             return response()->json(["error" => $e->getMessage()], 500);

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Validator;
 use App\Models\EventsPictures;
+use App\Models\Pictures;
+use App\Models\EventsOrganizer;
 use Illuminate\Http\Request;
 
 class EventsPicturesController extends Controller
@@ -15,7 +17,7 @@ class EventsPicturesController extends Controller
      */
     public function index(Request $request, EventsPictures $eventsPictures)
     {
-        return response()->json(["response" =>eventsPictures::all()], 200);
+        return response()->json(["response" => eventsPictures::all()], 200);
     }
 
     /**
@@ -24,29 +26,15 @@ class EventsPicturesController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, EventsPictures $eventsPictures)
+    public function store(Request $request, EventsOrganizer $event)
     {
         
-        try {
+        // try {
 
-            $validator = Validator::make($request->all(), $eventsPictures->rules(), $eventsPictures->messages());
-
-            if ($validator->stopOnFirstFailure()->fails()) {
-                return response()->json(["error" => $validator->messages()], 400);
-            }
-
-            $eventsPictures->events_id = $request->events_id ?? '';
-            $eventsPictures->pictures_id = $request->pictures_id ?? '';
-            
-
-            if (!$eventsPictures->save()) {
-                return response()->json(["response" => false], 200);
-            }
-
-            return response()->json(["response" => $eventsPictures], 201);
-        } catch (\Exception $e) {
-            return response()->json(["error" => $e->getMessage()], 500);
-        }
+        //     return response()->json(["response" => $eventsPictures], 201);
+        // } catch (\Exception $e) {
+        //     return response()->json(["error" => $e->getMessage()], 500);
+        // }
     }
 
     /**
@@ -55,9 +43,19 @@ class EventsPicturesController extends Controller
      * @param  \App\Models\EventsPictures  $eventsPictures
      * @return \Illuminate\Http\Response
      */
-    public function show(EventsPictures $eventsPictures)
+    public function show(Pictures $id)
     {
-        return response()->json(["response" =>  $eventsPictures], 200);  
+        return response()->json(["response" =>  $id], 200);  
+    }
+
+    public function validUser($picture_id){
+        if($obj_events_pictures =  EventsPictures::where(['pictures_id' => $picture_id])->first()){
+            if($user = UsersController::userActive()){
+                return $obj_events_pictures->users_id == $user->id;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -67,16 +65,24 @@ class EventsPicturesController extends Controller
      * @param  \App\Models\EventsPictures  $eventsPictures
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, EventsPictures $eventsPictures)
+    public function update(Request $request, Pictures $id)
     {
         try {
 
-            $data_request = $request->all();
-            if (!$eventsPictures->update($data_request)) {
-                return response()->json(["response" => false], 200);
+            if(isset($id->id) && !$this->validUser($id->id)){
+                throw new \Exception("Usuário não tem permissão");
             }
 
-            return response()->json(["response" => $eventsPictures], 200);
+            $id->mimo          = $request->mimo;;
+            $id->base64        = $request->base64;
+            $id->title         = $request->title;
+            $id->description   = $request->description;
+
+            if (!$id->update()) {
+                return response()->json(["response" => false], 401);
+            }
+
+            return response()->json(["response" => $id], 200);
         } catch (\Exception $e) {
             return response()->json(["error" => $e->getMessage()], 500);
         }
@@ -88,9 +94,20 @@ class EventsPicturesController extends Controller
      * @param  \App\Models\EventsPictures  $eventsPictures
      * @return \Illuminate\Http\Response
      */
-    public function destroy(EventsPictures $eventsPictures)
+    public function destroy(Pictures $id)
     {
-        $id = $eventsPictures->id;
-        return response()->json(["response" => (bool)$eventsPictures->destroy($id)], 200);
+        $id = $id->id;
+
+        if(!$this->validUser($id)){
+            throw new \Exception("Usuário não tem permissão");
+        }
+
+        if($obj_events_pictures =  EventsPictures::where(['pictures_id' => $id])->first()){
+            if(!(bool)$obj_events_pictures->destroy($obj_events_pictures->id)){
+                return false;
+            }
+        }
+
+        return response()->json(["response" => (bool)$id->destroy($id)], 200);
     }
 }

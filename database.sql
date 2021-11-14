@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS events_pictures_tbl (
     events_id INT NOT NULL,
     FOREIGN KEY (events_id)
         REFERENCES events_tbl (id),
+    users_id INT NOT NULL,
+    FOREIGN KEY (users_id)
+        REFERENCES users_tbl (id),
     pictures_id INT NOT NULL,
     FOREIGN KEY (pictures_id)
         REFERENCES pictures_tbl (id),
