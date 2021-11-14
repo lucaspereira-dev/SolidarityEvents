@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
@@ -22,15 +23,40 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
+        $dataAuth =  $this->decodeBasicAuth($request->header('Authorization'));
+
+        if ($dataAuth === false || (is_array($dataAuth) && !count($dataAuth) == 2)) {
+            return response()->json(['error' => 'Noty Authorization'], 401);
+        }
+
+        $credentials = ['email' => $dataAuth[0], 'password' => $dataAuth[1]];;
+
+        if (!$token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         return $this->respondWithToken($token);
+    }
+
+    private function decodeBasicAuth($basicAuth)
+    {
+
+        $explodeAuth = explode(' ', $basicAuth);
+
+        if (count($explodeAuth) <= 1) {
+            return false;
+        }
+
+        $stringAuth = base64_decode($explodeAuth[1]);
+
+        if (!str_contains($stringAuth, ':')) {
+            return false;
+        }
+
+        return explode(':', $stringAuth);
     }
 
     /**
@@ -40,7 +66,7 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        return auth()->user();
     }
 
     /**
