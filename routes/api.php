@@ -23,10 +23,6 @@ use Illuminate\Routing\Router;
 |
 */
 
-Route::get('/', function () {
-    return 'Bem-vindo a API';
-});
-
 Route::get('/',  [GeneralController::class, 'index']);
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
