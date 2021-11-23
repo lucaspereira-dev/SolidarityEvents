@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS pictures_tbl (
     base64 TEXT,
     title VARCHAR(100),
     description TEXT,
+    date_update TIMESTAMP,
     date_creation TIMESTAMP
 );
 
@@ -44,6 +45,7 @@ CREATE TABLE IF NOT EXISTS events_pictures_tbl (
     pictures_id INT NOT NULL,
     FOREIGN KEY (pictures_id)
         REFERENCES pictures_tbl (id),
+    date_update TIMESTAMP,
     date_creation TIMESTAMP
 );
 
