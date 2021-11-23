@@ -107,14 +107,18 @@ class GeneralController extends Controller
             if (isset($request->pictures)) {
                 foreach ($request->pictures as $picture) {
 
-                    $obj_pictures = new Pictures();
-                    $obj_pictures->save($picture);
-
-                    $eventsPictures                 = new EventsPictures();
-                    $eventsPictures->events_id      = $events->id;
-                    $eventsPictures->users_id       = $users->id;
-                    $eventsPictures->pictures_id    = $obj_pictures->id;
-                    $eventsPictures->save();
+                    $obj_pictures               = new Pictures();
+                    $obj_pictures->mimo         = $picture->mimo ?? '';
+                    $obj_pictures->base64       = $picture->base64 ?? '';
+                    $obj_pictures->title        = $picture->title ?? '';
+                    $obj_pictures->description  = $picture->description ?? '';
+                    if ($obj_pictures->save()) {
+                        $eventsPictures                 = new EventsPictures();
+                        $eventsPictures->events_id      = $events->id;
+                        $eventsPictures->users_id       = $users->id;
+                        $eventsPictures->pictures_id    = $obj_pictures->id;
+                        $eventsPictures->save();
+                    }
                 }
             }
 
@@ -139,7 +143,7 @@ class GeneralController extends Controller
 
             $users = UsersController::userActive();
 
-            if($event->users_id != $users->id){
+            if ($event->users_id != $users->id) {
                 throw new Exception("Você não tem permissão para alterar esse evento.");
             }
 
@@ -159,14 +163,18 @@ class GeneralController extends Controller
             if (isset($request->pictures)) {
                 foreach ($request->pictures as $picture) {
 
-                    $obj_pictures = new Pictures();
-                    $obj_pictures->save($picture);
-
-                    $eventsPictures                 = new EventsPictures();
-                    $eventsPictures->events_id      = $event->events_id;
-                    $eventsPictures->users_id       = $users->id;
-                    $eventsPictures->pictures_id    = $obj_pictures->id;
-                    $eventsPictures->save();
+                    $obj_pictures               = new Pictures();
+                    $obj_pictures->mimo         = $picture->mimo ?? '';
+                    $obj_pictures->base64       = $picture->base64 ?? '';
+                    $obj_pictures->title        = $picture->title ?? '';
+                    $obj_pictures->description  = $picture->description ?? '';
+                    if ($obj_pictures->save()) {
+                        $eventsPictures                 = new EventsPictures();
+                        $eventsPictures->events_id      = $event->events_id;
+                        $eventsPictures->users_id       = $users->id;
+                        $eventsPictures->pictures_id    = $obj_pictures->id;
+                        $eventsPictures->save();
+                    }
                 }
             }
             $row = $this->getAllFields($event);
