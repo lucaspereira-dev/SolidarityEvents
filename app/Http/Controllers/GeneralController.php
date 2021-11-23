@@ -108,10 +108,10 @@ class GeneralController extends Controller
                 foreach ($request->pictures as $picture) {
 
                     $obj_pictures               = new Pictures();
-                    $obj_pictures->mimo         = $picture->mimo ?? '';
-                    $obj_pictures->base64       = $picture->base64 ?? '';
-                    $obj_pictures->title        = $picture->title ?? '';
-                    $obj_pictures->description  = $picture->description ?? '';
+                    $obj_pictures->mimo         = $picture['mimo'] ?? '';
+                    $obj_pictures->base64       = $picture['base64'] ?? '';
+                    $obj_pictures->title        = $picture['title'] ?? '';
+                    $obj_pictures->description  = $picture['description'] ?? '';
                     if ($obj_pictures->save()) {
                         $eventsPictures                 = new EventsPictures();
                         $eventsPictures->events_id      = $events->id;
@@ -164,10 +164,10 @@ class GeneralController extends Controller
                 foreach ($request->pictures as $picture) {
 
                     $obj_pictures               = new Pictures();
-                    $obj_pictures->mimo         = $picture->mimo ?? '';
-                    $obj_pictures->base64       = $picture->base64 ?? '';
-                    $obj_pictures->title        = $picture->title ?? '';
-                    $obj_pictures->description  = $picture->description ?? '';
+                    $obj_pictures->mimo         = $picture['mimo'] ?? '';
+                    $obj_pictures->base64       = $picture['base64'] ?? '';
+                    $obj_pictures->title        = $picture['title'] ?? '';
+                    $obj_pictures->description  = $picture['description'] ?? '';
                     if ($obj_pictures->save()) {
                         $eventsPictures                 = new EventsPictures();
                         $eventsPictures->events_id      = $event->events_id;
