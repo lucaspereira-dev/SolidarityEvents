@@ -44,6 +44,25 @@ class GeneralController extends Controller
         }
     }
 
+    public function eventsProfileActive(){
+
+        try {
+
+            $userActive = UsersController::userActive();
+            $eventsOrganizer = EventsOrganizer::where(['users_id' => $userActive['id']]);
+            $rows = array();
+            foreach ($eventsOrganizer->get() as $event) {
+                $row = $this->getAllFields($event);
+                array_push($rows, $row);
+            }
+
+            // $rows = json_encode($rows);
+            return response()->json(["response" => $rows], 200);
+        } catch (Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
+    }
+
     private function getAllFields(EventsOrganizer $event): array
     {
         $row = array();
