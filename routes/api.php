@@ -36,6 +36,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
 });
 
 Route::group(['prefix' => 'events'], function () {
+    Route::get('/myprofile',  [GeneralController::class, 'eventsProfileActive']);
     Route::get('/{event}',  [GeneralController::class, 'show']);
     Route::middleware(['apiJWT'])->group(function () {
         Route::post('/',  [GeneralController::class, 'store']);
