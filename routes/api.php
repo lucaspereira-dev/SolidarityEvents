@@ -40,6 +40,7 @@ Route::group(['prefix' => 'events'], function () {
     Route::get('/{event}',  [GeneralController::class, 'show']);
     Route::middleware(['apiJWT'])->group(function () {
         Route::post('/',  [GeneralController::class, 'store']);
+        Route::post('/{event}/upload',  [EventsPicturesController::class, 'store']);
         Route::put('/{event}',  [GeneralController::class, 'update']);
         Route::delete('/{event}',  [GeneralController::class, 'destroy']);
     });
@@ -54,9 +55,7 @@ Route::group(['prefix' => 'users'], function () {
 });
 
 Route::group(['prefix' => 'pictures'], function () {
-    Route::get('/{id}',  [EventsPicturesController::class, 'show']);
     Route::middleware(['apiJWT'])->group(function () {
-        Route::put('/{id}',  [EventsPicturesController::class, 'update']);
         Route::delete('/{id}',  [EventsPicturesController::class, 'destroy']);
     });
 });

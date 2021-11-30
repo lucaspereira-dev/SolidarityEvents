@@ -9,7 +9,6 @@ use App\Models\Pictures;
 use App\Models\Users;
 use Exception;
 use Illuminate\Http\Request;
-use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 
 class GeneralController extends Controller
 {
@@ -85,21 +84,7 @@ class GeneralController extends Controller
         $row['event']['date_end_event'] = $event['date_end_event'];
         $row['event']['phone'] = $event['phone'];
 
-        $pictures = EventsPictures::find(['events_id' => $event['id']]);
-        $rows_pictures = array();
-
-        foreach ($pictures as $picture) {
-            if ($data_pictures = Pictures::where(['id' => $picture['pictures_id']])->first()) {
-                $row_pictures['id'] = $data_pictures['id'];
-                $row_pictures['mimo'] = $data_pictures['mimo'];
-                $row_pictures['base64'] = $data_pictures['base64'];
-                $row_pictures['title'] = $data_pictures['title'];
-                $row_pictures['description'] = $data_pictures['description'];
-                array_push($rows_pictures, $row_pictures);
-            }
-        }
-
-        $row['event']['pictures'] = $rows_pictures;
+        $row['event']['pictures'] = EventsPicturesController::getPicturesByEvents($event['id']);
 
         return $row;
     }
@@ -141,6 +126,35 @@ class GeneralController extends Controller
                 }
             }
 
+            if ($files = $request->file()) {
+                foreach ($files as $name => $file) {
+
+                    $fileMime = $file->getMimeType();
+                    $fileOriginalName = $file->getClientOriginalName();
+                    $filePathInfo = pathinfo($fileOriginalName);
+                    $hashFile = md5($name);
+                    $fileNameToStore = $hashFile . '_' . time() . '.' . $filePathInfo['extension'];
+
+                    // Upload Image
+                    $path = $request->file($name)->storeAs('public/imgs', $fileNameToStore);
+
+                    $pictures = new Pictures();
+                    $pictures->mime      = $fileMime;
+                    $pictures->pathFile  = $path;
+
+                    if ($pictures->save()) {
+                        // $pictures->url = url('/') . Storage::url($pictures->pathFile);
+
+                        $eventsPictures                 = new EventsPictures();
+                        $eventsPictures->events_id      = $events->id;
+                        $eventsPictures->users_id       = $users->id;
+                        $eventsPictures->pictures_id    = $pictures->id;
+                        $eventsPictures->save();
+                    }
+
+                }
+            }
+
             $eventsOrganizer = new EventsOrganizer();
             $eventsOrganizer->users_id          = $users->id;
             $eventsOrganizer->events_id         = $events->id;
@@ -179,23 +193,33 @@ class GeneralController extends Controller
             $data_event->longitude              = $request->longitude               ?? $data_event->longitude;
             $data_event->update();
 
-            if (isset($request->pictures)) {
-                foreach ($request->pictures as $picture) {
+            if ($files = $request->file()) {
+                foreach ($files as $name => $file) {
 
-                    $obj_pictures               = new Pictures();
-                    $obj_pictures->mimo         = $picture['mimo'] ?? '';
-                    $obj_pictures->base64       = $picture['base64'] ?? '';
-                    $obj_pictures->title        = $picture['title'] ?? '';
-                    $obj_pictures->description  = $picture['description'] ?? '';
-                    if ($obj_pictures->save()) {
+                    $fileMime = $file->getMimeType();
+                    $fileOriginalName = $file->getClientOriginalName();
+                    $filePathInfo = pathinfo($fileOriginalName);
+                    $hashFile = md5($name);
+                    $fileNameToStore = $hashFile . '_' . time() . '.' . $filePathInfo['extension'];
+
+                    // Upload Image
+                    $path = $request->file($name)->storeAs('public/imgs', $fileNameToStore);
+
+                    $pictures = new Pictures();
+                    $pictures->mime      = $fileMime;
+                    $pictures->pathFile  = $path;
+
+                    if ($pictures->save()) {
                         $eventsPictures                 = new EventsPictures();
-                        $eventsPictures->events_id      = $event->events_id;
+                        $eventsPictures->events_id      = $event->id;
                         $eventsPictures->users_id       = $users->id;
-                        $eventsPictures->pictures_id    = $obj_pictures->id;
+                        $eventsPictures->pictures_id    = $pictures->id;
                         $eventsPictures->save();
                     }
+
                 }
             }
+
             $row = $this->getAllFields($event);
             return response()->json(["response" => $row], 200);
         } catch (Exception $e) {
