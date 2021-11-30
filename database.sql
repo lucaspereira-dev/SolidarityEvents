@@ -26,10 +26,8 @@ CREATE TABLE IF NOT EXISTS events_tbl (
 
 CREATE TABLE IF NOT EXISTS pictures_tbl (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    mimo VARCHAR(50),
-    base64 TEXT,
-    title VARCHAR(100),
-    description TEXT,
+    mime VARCHAR(50),
+    pathFile TEXT,
     date_update TIMESTAMP,
     date_creation TIMESTAMP
 );
