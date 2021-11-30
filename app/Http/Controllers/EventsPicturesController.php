@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Storage;
+use Storage;
 use App\Models\EventsPictures;
 use App\Models\Pictures;
 use App\Models\EventsOrganizer;
@@ -37,7 +37,7 @@ class EventsPicturesController extends Controller
                     $fileNameToStore = $hashFile . '_' . time() . '.' . $filePathInfo['extension'];
 
                     // Upload Image
-                    $path = $request->file($name)->storeAs('public/imgs', $fileNameToStore);
+                    $path = Storage::disk('s3')->put($fileNameToStore, file_get_contents($file));
 
                     $pictures = new Pictures();
                     $pictures->mime      = $fileMime;
