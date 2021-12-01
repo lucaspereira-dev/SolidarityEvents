@@ -60,7 +60,6 @@ class EventsPicturesController extends Controller
         $pictures = EventsPictures::where(['events_id' => $events_id]);
 
         $rows_pictures = array();
-        $url_base = url('/');
 
         foreach ($pictures->get() as $picture) {
             if ($data_pictures = Pictures::where(['id' => $picture['pictures_id']])->first()) {
@@ -73,15 +72,16 @@ class EventsPicturesController extends Controller
             }
         }
 
-        return $row_pictures;
+        return $rows_pictures;
     }
 
-    public static function fileName($pathFile){
+    public static function fileName($pathFile)
+    {
 
         $explode_url = explode('/', $pathFile);
         if (!count($explode_url) > 1) {
             return $pathFile;
-        } 
+        }
 
         return end($explode_url);
     }
@@ -111,7 +111,7 @@ class EventsPicturesController extends Controller
         }
 
         if ($obj_events_pictures =  EventsPictures::where(['pictures_id' => $numberId])->first()) {
-            Storage::disk('s3')->delete('imgs/'. $id['pathFile']);
+            Storage::disk('s3')->delete('imgs/' . $id['pathFile']);
             if (!(bool)$obj_events_pictures->destroy($obj_events_pictures->id)) {
                 return false;
             }
