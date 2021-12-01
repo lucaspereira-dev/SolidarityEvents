@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EventsPicturesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return "Bem-vindo a API para eventos solidários.";
 });
+
+Route::get('imgs/{path}',[EventsPicturesController::class, 'showImgs']);
