@@ -54,8 +54,6 @@ class GeneralController extends Controller
                 $row = $this->getAllFields($event);
                 array_push($rows, $row);
             }
-
-            // $rows = json_encode($rows);
             return response()->json(["response" => $rows], 200);
         } catch (Exception $e) {
             return response()->json(["error" => $e->getMessage()], 500);
@@ -108,52 +106,27 @@ class GeneralController extends Controller
                 throw new Exception("Não foi possível criar evento");
             }
 
-            if (isset($request->pictures)) {
-                foreach ($request->pictures as $picture) {
-
-                    $obj_pictures               = new Pictures();
-                    $obj_pictures->mimo         = $picture['mimo'] ?? '';
-                    $obj_pictures->base64       = $picture['base64'] ?? '';
-                    $obj_pictures->title        = $picture['title'] ?? '';
-                    $obj_pictures->description  = $picture['description'] ?? '';
-                    if ($obj_pictures->save()) {
-                        $eventsPictures                 = new EventsPictures();
-                        $eventsPictures->events_id      = $events->id;
-                        $eventsPictures->users_id       = $users->id;
-                        $eventsPictures->pictures_id    = $obj_pictures->id;
-                        $eventsPictures->save();
-                    }
-                }
-            }
-
             if ($files = $request->file()) {
                 foreach ($files as $name => $file) {
 
                     $fileMime = $file->getMimeType();
-                    $fileOriginalName = $file->getClientOriginalName();
-                    $filePathInfo = pathinfo($fileOriginalName);
-                    $hashFile = md5($name);
-                    $fileNameToStore = $hashFile . '_' . time() . '.' . $filePathInfo['extension'];
-
                     // Upload Image
-                    $path = $request->file($name)->storeAs('public/imgs', $fileNameToStore);
+                    $path = $request->file($name)->store('imgs', 's3');
 
                     $pictures = new Pictures();
                     $pictures->mime      = $fileMime;
-                    $pictures->pathFile  = $path;
+                    $pictures->pathFile  = EventsPicturesController::fileName($path);
 
                     if ($pictures->save()) {
-                        // $pictures->url = url('/') . Storage::url($pictures->pathFile);
-
                         $eventsPictures                 = new EventsPictures();
                         $eventsPictures->events_id      = $events->id;
                         $eventsPictures->users_id       = $users->id;
                         $eventsPictures->pictures_id    = $pictures->id;
                         $eventsPictures->save();
                     }
-
                 }
             }
+
 
             $eventsOrganizer = new EventsOrganizer();
             $eventsOrganizer->users_id          = $users->id;
@@ -197,17 +170,12 @@ class GeneralController extends Controller
                 foreach ($files as $name => $file) {
 
                     $fileMime = $file->getMimeType();
-                    $fileOriginalName = $file->getClientOriginalName();
-                    $filePathInfo = pathinfo($fileOriginalName);
-                    $hashFile = md5($name);
-                    $fileNameToStore = $hashFile . '_' . time() . '.' . $filePathInfo['extension'];
-
                     // Upload Image
-                    $path = $request->file($name)->storeAs('public/imgs', $fileNameToStore);
+                    $path = $request->file($name)->store('imgs', 's3');
 
                     $pictures = new Pictures();
                     $pictures->mime      = $fileMime;
-                    $pictures->pathFile  = $path;
+                    $pictures->pathFile  = EventsPicturesController::fileName($path);
 
                     if ($pictures->save()) {
                         $eventsPictures                 = new EventsPictures();
@@ -216,7 +184,6 @@ class GeneralController extends Controller
                         $eventsPictures->pictures_id    = $pictures->id;
                         $eventsPictures->save();
                     }
-
                 }
             }
 

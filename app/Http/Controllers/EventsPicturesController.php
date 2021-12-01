@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use App\Models\EventsPictures;
 use App\Models\Pictures;
 use App\Models\EventsOrganizer;
@@ -29,19 +29,14 @@ class EventsPicturesController extends Controller
 
             if ($files = $request->file()) {
                 foreach ($files as $name => $file) {
-                    
-                    $fileMime = $file->getMimeType();
-                    $fileOriginalName = $file->getClientOriginalName();
-                    $filePathInfo = pathinfo($fileOriginalName);
-                    $hashFile = md5($name);
-                    $fileNameToStore = $hashFile . '_' . time() . '.' . $filePathInfo['extension'];
 
+                    $fileMime = $file->getMimeType();
                     // Upload Image
-                    $path = Storage::disk('s3')->put($fileNameToStore, file_get_contents($file));
+                    $path = $request->file($name)->store('imgs', 's3');
 
                     $pictures = new Pictures();
                     $pictures->mime      = $fileMime;
-                    $pictures->pathFile  = $path;
+                    $pictures->pathFile  = self::fileName($path);
 
                     if ($pictures->save()) {
                         $eventsPictures                 = new EventsPictures();
@@ -54,13 +49,14 @@ class EventsPicturesController extends Controller
             }
 
             return response()->json(["response" => true], 201);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(["error" => $e->getMessage()], 500);
         }
     }
 
-    public static function getPicturesByEvents($events_id): array{
-        
+    public static function getPicturesByEvents($events_id): array
+    {
+
         $pictures = EventsPictures::where(['events_id' => $events_id]);
 
         $rows_pictures = array();
@@ -68,15 +64,35 @@ class EventsPicturesController extends Controller
 
         foreach ($pictures->get() as $picture) {
             if ($data_pictures = Pictures::where(['id' => $picture['pictures_id']])->first()) {
-                
+
                 $row_pictures['id'] = $data_pictures['id'];
                 $row_pictures['mime'] = $data_pictures['mime'];
-                $row_pictures['url'] = $url_base . Storage::url($data_pictures['pathFile']);;
+                $row_pictures['url'] = url('/imgs') . '/' . $data_pictures['pathFile'];
+
                 array_push($rows_pictures, $row_pictures);
             }
         }
 
         return $row_pictures;
+    }
+
+    public static function fileName($pathFile){
+
+        $explode_url = explode('/', $pathFile);
+        if (!count($explode_url) > 1) {
+            return $pathFile;
+        } 
+
+        return end($explode_url);
+    }
+
+    public function showImgs($path)
+    {
+        try {
+            return Storage::disk('s3')->response('imgs/' . $path);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 
 
@@ -88,18 +104,19 @@ class EventsPicturesController extends Controller
      */
     public function destroy(Pictures $id)
     {
-        $id = $id->id;
+        $numberId = $id->id;
 
-        if (!$this->validUser($id)) {
+        if (!$this->validUser($numberId)) {
             throw new \Exception("Usuário não tem permissão");
         }
 
-        if ($obj_events_pictures =  EventsPictures::where(['pictures_id' => $id])->first()) {
+        if ($obj_events_pictures =  EventsPictures::where(['pictures_id' => $numberId])->first()) {
+            Storage::disk('s3')->delete('imgs/'. $id['pathFile']);
             if (!(bool)$obj_events_pictures->destroy($obj_events_pictures->id)) {
                 return false;
             }
         }
 
-        return response()->json(["response" => (bool)$id->destroy($id)], 200);
+        return response()->json(["response" => (bool)$id->destroy($numberId)], 200);
     }
 }
