@@ -60,7 +60,6 @@ class EventsPicturesController extends Controller
         $pictures = EventsPictures::where(['events_id' => $events_id]);
 
         $rows_pictures = array();
-        $url_base = url('/');
 
         foreach ($pictures->get() as $picture) {
             if ($data_pictures = Pictures::where(['id' => $picture['pictures_id']])->first()) {
@@ -73,15 +72,16 @@ class EventsPicturesController extends Controller
             }
         }
 
-        return $row_pictures;
+        return $rows_pictures;
     }
 
-    public static function fileName($pathFile){
+    public static function fileName($pathFile)
+    {
 
         $explode_url = explode('/', $pathFile);
         if (!count($explode_url) > 1) {
             return $pathFile;
-        } 
+        }
 
         return end($explode_url);
     }
@@ -104,25 +104,29 @@ class EventsPicturesController extends Controller
      */
     public function destroy(Pictures $id)
     {
-        $users = UsersController::userActive();
-        $obj_events_pictures =  EventsPictures::where(['pictures_id' => $id->id])->first();
+        try {
+            $users = UsersController::userActive();
+            $obj_events_pictures =  EventsPictures::where(['pictures_id' => $id->id])->first();
 
-        if(!$obj_events_pictures){
-            return false;
-        }
+            if (!$obj_events_pictures) {
+                return false;
+            }
 
-        if($users->id !== $obj_events_pictures->users_id){
-            throw new \Exception("Usuário não tem permissão");
-        }
+            if ($users->id !== $obj_events_pictures->users_id) {
+                throw new \Exception("Usuário não tem permissão");
+            }
 
-        if(!Storage::disk('s3')->delete('imgs/'. $id->pathFile)){
-            throw new \Exception("Não foi possível apagar o arquivo");
-        }
+            if (!Storage::disk('s3')->delete('imgs/' . $id->pathFile)) {
+                throw new \Exception("Não foi possível apagar o arquivo");
+            }
 
-        if (!(bool)$obj_events_pictures->destroy($obj_events_pictures->id)) {
-            throw new \Exception("Não foi possível apagar arquivo de evento");
+            if (!(bool)$obj_events_pictures->destroy($obj_events_pictures->id)) {
+                throw new \Exception("Não foi possível apagar arquivo de evento");
+            }
+
+            return response()->json(["response" => (bool)$id->destroy($id->id)], 200);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
         }
-        
-        return response()->json(["response" => (bool)$id->destroy($id->id)], 200);
     }
 }
