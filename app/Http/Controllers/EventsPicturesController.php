@@ -104,19 +104,29 @@ class EventsPicturesController extends Controller
      */
     public function destroy(Pictures $id)
     {
-        $numberId = $id->id;
+        try {
+            $users = UsersController::userActive();
+            $obj_events_pictures =  EventsPictures::where(['pictures_id' => $id->id])->first();
 
-        if (!$this->validUser($numberId)) {
-            throw new \Exception("Usuário não tem permissão");
-        }
-
-        if ($obj_events_pictures =  EventsPictures::where(['pictures_id' => $numberId])->first()) {
-            Storage::disk('s3')->delete('imgs/' . $id['pathFile']);
-            if (!(bool)$obj_events_pictures->destroy($obj_events_pictures->id)) {
+            if (!$obj_events_pictures) {
                 return false;
             }
-        }
 
-        return response()->json(["response" => (bool)$id->destroy($numberId)], 200);
+            if ($users->id !== $obj_events_pictures->users_id) {
+                throw new \Exception("Usuário não tem permissão");
+            }
+
+            if (!Storage::disk('s3')->delete('imgs/' . $id->pathFile)) {
+                throw new \Exception("Não foi possível apagar o arquivo");
+            }
+
+            if (!(bool)$obj_events_pictures->destroy($obj_events_pictures->id)) {
+                throw new \Exception("Não foi possível apagar arquivo de evento");
+            }
+
+            return response()->json(["response" => (bool)$id->destroy($id->id)], 200);
+        } catch (\Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
     }
 }
